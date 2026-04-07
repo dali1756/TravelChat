@@ -1,0 +1,37 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# AI tools
+.claude
+.codex
+.cursor
+.github
+
+# openspec
+openspec
+
+# version
+.python-version
+
+# testing
+.pytest_cache/
+test.db
+
+# Database dumps
+*.sql
+
+# OS
+.DS_Store
+
+# env
+.env
+
+.ruff_cache
