@@ -22,7 +22,7 @@ docker-compose exec backend uv run python manage.py showmigrations
 
 ## Tests
 ```bash
-uv run pytest                   # all tests
+uv run pytest -q                # all tests
 uv run pytest tests/xxx/xxx.py  # single file
 ```
 
