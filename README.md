@@ -60,6 +60,15 @@ docker-compose exec backend uv run python manage.py migrate
 docker-compose exec db psql -U postgres -d django_channel
 ```
 
+### Docker Shell
+```bash
+# 進入 backend container shell
+docker-compose exec backend bash
+
+# 進入 db container shell
+docker-compose exec db bash
+```
+
 ### Backend Tests & Linting (在 backend/ 目錄下執行)
 ```bash
 cd backend
