@@ -17,3 +17,12 @@ class UserManager(SoftDeleteManager, BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         return self.create_user(email, username, password, **extra_fields)
+
+    def public(self):
+        """
+        對外 API 專用的 queryset。
+        隱藏管理員帳號：
+        - 排除 `is_superuser=True` 的帳號。
+        - 額外排除 username 大小寫不敏感等於 "admin" 的帳號。
+        """
+        return self.get_queryset().filter(is_superuser=False).exclude(username__iexact="admin")
