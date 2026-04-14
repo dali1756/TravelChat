@@ -10,15 +10,16 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
         "email",
         "username",
+        "is_active",
         "is_staff",
         "is_superuser",
-        "last_login_time",
-        "deleted_at",
+        "last_login",
+        "date_joined",
     )
     search_fields = ("email", "username")
     ordering = ("email",)
 
-    readonly_fields = ("created_at", "updated_at", "last_login_time", "last_login", "date_joined")
+    readonly_fields = ("updated_at", "last_login", "date_joined")
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
@@ -39,11 +40,9 @@ class CustomUserAdmin(UserAdmin):
             gettext_lazy("Timestamps"),
             {
                 "fields": (
-                    "created_at",
-                    "updated_at",
-                    "last_login_time",
-                    "last_login",
                     "date_joined",
+                    "updated_at",
+                    "last_login",
                     "deleted_at",
                 ),
             },

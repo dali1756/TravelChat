@@ -10,7 +10,9 @@ class TestLogoutAPI:
     url = "/api/auth/logout/"
 
     def _create_user_and_tokens(self):
-        user = User.objects.create_user(email="test@example.com", username="testuser", password="Aa1!xy")
+        user = User.objects.create_user(
+            email="test@example.com", username="testuser", password="Aa1!xy", is_active=True
+        )
         refresh = RefreshToken.for_user(user)
         return user, str(refresh), str(refresh.access_token)
 
@@ -48,3 +50,22 @@ class TestLogoutAPI:
         _, refresh, _ = self._create_user_and_tokens()
         response = api_client.post(self.url, {"refresh": refresh})
         assert response.status_code == 401
+
+    def test_rejects_other_user_refresh_token(self, api_client):
+        """
+        A 使用者不能以 B 使用者的 refresh token 呼叫 logout
+        """
+        user_a = User.objects.create_user(email="a@example.com", username="usera", password="Aa1!xy", is_active=True)
+        user_b = User.objects.create_user(email="b@example.com", username="userb", password="Aa1!xy", is_active=True)
+        a_access = str(RefreshToken.for_user(user_a).access_token)
+        b_refresh = str(RefreshToken.for_user(user_b))
+
+        api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {a_access}")
+        response = api_client.post(self.url, {"refresh": b_refresh})
+        assert response.status_code == 400
+        assert "refresh" in response.data
+
+        # B 的 refresh token 一樣可使用
+        api_client.credentials()
+        refresh_resp = api_client.post("/api/auth/token/refresh/", {"refresh": b_refresh})
+        assert refresh_resp.status_code == 200

@@ -8,11 +8,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR.parent / ".env")
 
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.environ["SECRET_KEY"]
 
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() in ("true", "1")
 
-ALLOWED_HOSTS = ["*"]
+allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1")
+ALLOWED_HOSTS = []
+for host in allowed_hosts_env.split(","):
+    host = host.strip()
+    if host:
+        ALLOWED_HOSTS.append(host)
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
 
 ASGI_APPLICATION = "core.asgi.application"
 
@@ -146,6 +156,10 @@ CORS_ALLOWED_ORIGINS = [
 # REST Framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
+    "DEFAULT_THROTTLE_CLASSES": ("rest_framework.throttling.ScopedRateThrottle",),
+    "DEFAULT_THROTTLE_RATES": {
+        "login": os.getenv("LOGIN_THROTTLE_RATE", "5/min"),
+    },
 }
 
 # Simple JWT

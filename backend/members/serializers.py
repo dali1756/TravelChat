@@ -38,8 +38,25 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "phone", "date_joined"]
-        read_only_fields = ["id", "date_joined"]
+        fields = ["id", "username", "email", "phone", "date_joined", "last_login"]
+        read_only_fields = ["id", "email", "date_joined", "last_login"]
+
+    def validate_username(self, value):
+        """
+        以 public() queryset 檢查 username 唯一值，排除自己。
+        自定義驗證而非使用 UniqueValidator 是為了明確控制 queryset（避免洩漏 admin）。
+        """
+        instance = self.instance
+        qs = User.objects.public().filter(username__iexact=value)
+        if instance is not None:
+            qs = qs.exclude(pk=instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError(USERNAME_TAKEN_MESSAGE)
+        return value
+
+
+class SetUserActiveSerializer(serializers.Serializer):
+    is_active = serializers.BooleanField()
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -53,6 +70,36 @@ class ChangePasswordSerializer(serializers.Serializer):
         user = self.context["request"].user
         try:
             validate_password(attrs["new_password"], user=user)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({"new_password": list(exc.messages)}) from exc
+        return attrs
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+
+
+class ResendVerifyEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True)
+    new_password_confirm = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["new_password_confirm"]:
+            raise serializers.ValidationError({"new_password_confirm": "兩次新密碼不一致。"})
+        try:
+            validate_password(attrs["new_password"])
         except DjangoValidationError as exc:
             raise serializers.ValidationError({"new_password": list(exc.messages)}) from exc
         return attrs

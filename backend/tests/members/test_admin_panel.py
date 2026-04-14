@@ -7,9 +7,9 @@ User = get_user_model()
 
 @pytest.fixture
 def admin_client(db):
-    User.objects.create_superuser(email="admin@example.com", username="adminboss", password="Aa1!xy")
+    User.objects.create_superuser(email="admin@example.com", username="adminboss", password="Aa1!xy", is_active=True)
     client = Client()
-    logged_in = client.login(email="admin@example.com", password="Aa1!xy")
+    logged_in = client.login(email="admin@example.com", password="Aa1!xy", is_active=True)
     assert logged_in, "admin 未能登入 Django admin"
     return client
 
@@ -21,7 +21,7 @@ class TestDjangoAdminPanel:
         assert response.status_code == 200
 
     def test_changelist_shows_expected_columns(self, admin_client):
-        User.objects.create_user(email="visible@example.com", username="vis", password="Aa1!xy")
+        User.objects.create_user(email="visible@example.com", username="vis", password="Aa1!xy", is_active=True)
         response = admin_client.get("/admin/members/user/")
         assert response.status_code == 200
         content = response.content.decode()
@@ -37,6 +37,8 @@ class TestDjangoAdminPanel:
         assert "username" in content.lower()
 
     def test_change_user_page_loads(self, admin_client):
-        user = User.objects.create_user(email="target@example.com", username="target", password="Aa1!xy")
+        user = User.objects.create_user(
+            email="target@example.com", username="target", password="Aa1!xy", is_active=True
+        )
         response = admin_client.get(f"/admin/members/user/{user.pk}/change/")
         assert response.status_code == 200

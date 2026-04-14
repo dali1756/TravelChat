@@ -27,7 +27,7 @@ class TestSimpleJWTSettings:
 @pytest.mark.django_db
 class TestRefreshRotation:
     def test_old_refresh_blacklisted_after_rotation(self, api_client):
-        User.objects.create_user(email="test@example.com", username="testuser", password="Aa1!xy")
+        User.objects.create_user(email="test@example.com", username="testuser", password="Aa1!xy", is_active=True)
         login = api_client.post("/api/auth/login/", {"email": "test@example.com", "password": "Aa1!xy"})
         original_refresh = login.data["refresh"]
 
