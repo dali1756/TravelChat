@@ -128,6 +128,7 @@ class AdminSetUserActiveView(APIView):
     """
     Staff-only API：切換指定使用者的 is_active，停用時強制登出（blacklist 所有 refresh token）。
     """
+
     permission_classes = [permissions.IsAdminUser]
 
     def patch(self, request, user_id):

@@ -8,4 +8,5 @@ urlpatterns = [
     path("api/auth/", include(auth_urlpatterns)),
     path("api/members/", include(members_urlpatterns)),
     path("api/admin/", include(admin_urlpatterns)),
+    path("api/chats/", include("chats.urls")),
 ]

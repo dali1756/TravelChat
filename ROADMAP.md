@@ -8,7 +8,8 @@
 User (Frontend)
     |
     +-- HTTP (REST API)
-    |     +-- /api/members/     --> 註冊、登入、個人資料
+    |     +-- /api/auth/        --> 註冊、登入、Token、驗證、密碼相關
+    |     +-- /api/members/     --> 個人資料
     |     +-- /api/trips/       --> 行程 CRUD、景點
     |     +-- /api/chats/       --> 聊天室、訊息歷史記錄
     |
@@ -51,25 +52,41 @@ backend/
 
 **Goal:** Users can register, log in, and get JWT tokens.
 
-- [ ] Custom User model (extend AbstractUser)
-- [ ] Registration API (POST /api/members/register/)
-- [ ] Login API (POST /api/members/login/) - returns JWT
-- [ ] Token refresh API (POST /api/members/token/refresh/)
-- [ ] User profile API (GET/PUT /api/members/me/)
-- [ ] Database migration
-- [ ] Tests
+- [x] Custom User model (extend AbstractUser, soft delete, BCrypt)
+- [x] Registration API (POST /api/auth/register/) - is_active=False until email verified
+- [x] Login API (POST /api/auth/login/) - returns JWT, rate limited
+- [x] Logout API (POST /api/auth/logout/) - blacklist refresh token
+- [x] Token refresh API (POST /api/auth/token/refresh/) - rotation + blacklist
+- [x] User profile API (GET/PUT/PATCH /api/members/me/)
+- [x] Change password API (PUT /api/members/me/password/)
+- [x] Email verification (send, verify, resend)
+- [x] Password reset (request, confirm)
+- [x] Admin set user active (PATCH /api/admin/members/<id>/active/)
+- [x] Deployment config (SECRET_KEY, DEBUG, ALLOWED_HOSTS from env)
+- [x] Database migration
+- [x] Tests (101 passing)
 
-### Phase 2: Real-time Chat - Person to Person (chats)
+### Phase 2: Real-time Chat - Direct Message MVP (chats)
 
-**Goal:** Users can send real-time messages to each other.
+**Goal:** Users can create 1-to-1 chat rooms and send real-time messages to each other.
 
 - [ ] Chat models (Room, Message)
 - [ ] ChatConsumer (WebSocket connect/disconnect/receive)
 - [ ] WebSocket routing (ws/chat/<room_id>/)
+- [ ] REST API to create/get direct chat room
 - [ ] REST API for chat room list (GET /api/chats/rooms/)
 - [ ] REST API for message history (GET /api/chats/rooms/<id>/messages/)
-- [ ] Group chat support (multiple users in one room)
 - [ ] WebSocket JWT authentication
+- [ ] Tests
+
+### Phase 2.5: Chat Enhancements - Group Chat and Read State (chats)
+
+**Goal:** Extend direct chat foundation to support group conversations and basic read-state features.
+
+- [ ] Group chat support (multiple users in one room)
+- [ ] Group member management
+- [ ] Read receipt support
+- [ ] Unread count support
 - [ ] Tests
 
 ### Phase 3: AI Chat - Gemini Integration (chats)

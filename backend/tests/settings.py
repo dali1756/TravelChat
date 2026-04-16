@@ -18,3 +18,10 @@ DATABASES = {
 
 # 測試時使用 locmem backend（可透過 mail.outbox 檢查寄出信件）
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+
+# WebSocket 測試使用 InMemoryChannelLayer
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
