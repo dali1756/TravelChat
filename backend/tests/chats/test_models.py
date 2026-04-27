@@ -48,6 +48,33 @@ class TestChatRoomMemberModel:
         with pytest.raises(IntegrityError):
             ChatRoomMember.objects.create(room=room, user=user)
 
+    def test_last_read_message_defaults_to_none(self):
+        user = User.objects.create_user(email="a@test.com", username="a", password="Aa1!xy", is_active=True)
+        room = ChatRoom.objects.create(room_type=ChatRoom.RoomType.DIRECT, created_by=user)
+        member = ChatRoomMember.objects.create(room=room, user=user)
+        assert member.last_read_message is None
+
+    def test_last_read_message_can_point_to_message(self):
+        user = User.objects.create_user(email="a@test.com", username="a", password="Aa1!xy", is_active=True)
+        room = ChatRoom.objects.create(room_type=ChatRoom.RoomType.DIRECT, created_by=user)
+        member = ChatRoomMember.objects.create(room=room, user=user)
+        msg = Message.objects.create(room=room, sender=user, content="hello")
+        member.last_read_message = msg
+        member.save()
+        member.refresh_from_db()
+        assert member.last_read_message_id == msg.id
+
+    def test_last_read_message_set_null_on_message_delete(self):
+        user = User.objects.create_user(email="a@test.com", username="a", password="Aa1!xy", is_active=True)
+        room = ChatRoom.objects.create(room_type=ChatRoom.RoomType.DIRECT, created_by=user)
+        member = ChatRoomMember.objects.create(room=room, user=user)
+        msg = Message.objects.create(room=room, sender=user, content="hello")
+        member.last_read_message = msg
+        member.save()
+        msg.delete()
+        member.refresh_from_db()
+        assert member.last_read_message is None
+
 
 @pytest.mark.django_db
 class TestMessageModel:

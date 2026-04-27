@@ -148,6 +148,82 @@ class TestWebSocketMessaging:
 
         await communicator.disconnect()
 
+    async def test_mark_read_via_websocket_broadcasts_to_room(self):
+        user_a = await _make_user("a@test.com", "a")
+        user_b = await _make_user("b@test.com", "b")
+        room = await _make_room_with_members(user_a, user_b)
+
+        token_a = await _get_access_token(user_a)
+        token_b = await _get_access_token(user_b)
+        comm_a = WebsocketCommunicator(_get_application(), f"/ws/chat/{room.id}/?token={token_a}")
+        comm_b = WebsocketCommunicator(_get_application(), f"/ws/chat/{room.id}/?token={token_b}")
+        await comm_a.connect()
+        await comm_b.connect()
+
+        # B sends a message so A has something to read
+        await comm_b.send_json_to({"type": "message.send", "content": "hello"})
+        msg_a = await comm_a.receive_json_from(timeout=5)
+        await comm_b.receive_json_from(timeout=5)
+        assert msg_a["type"] == "message.created"
+        message_id = msg_a["message"]["id"]
+
+        # A marks read via WebSocket
+        await comm_a.send_json_to({"type": "message.read", "message_id": message_id})
+
+        # Both A and B should receive message.read event
+        read_a = await comm_a.receive_json_from(timeout=5)
+        read_b = await comm_b.receive_json_from(timeout=5)
+
+        assert read_a["type"] == "message.read"
+        assert read_a["room_id"] == room.id
+        assert read_a["user_id"] == user_a.id
+        assert read_a["last_read_message_id"] == message_id
+        assert read_b["type"] == "message.read"
+        assert read_b["user_id"] == user_a.id
+
+        await comm_a.disconnect()
+        await comm_b.disconnect()
+
+    async def test_mark_read_without_message_id_uses_latest(self):
+        user_a = await _make_user("a@test.com", "a")
+        user_b = await _make_user("b@test.com", "b")
+        room = await _make_room_with_members(user_a, user_b)
+
+        token_a = await _get_access_token(user_a)
+        comm_a = WebsocketCommunicator(_get_application(), f"/ws/chat/{room.id}/?token={token_a}")
+        comm_b_token = await _get_access_token(user_b)
+        comm_b = WebsocketCommunicator(_get_application(), f"/ws/chat/{room.id}/?token={comm_b_token}")
+        await comm_a.connect()
+        await comm_b.connect()
+
+        await comm_b.send_json_to({"type": "message.send", "content": "hi"})
+        created_a = await comm_a.receive_json_from(timeout=5)
+        await comm_b.receive_json_from(timeout=5)
+        latest_id = created_a["message"]["id"]
+
+        await comm_a.send_json_to({"type": "message.read"})
+        read_event = await comm_a.receive_json_from(timeout=5)
+        assert read_event["type"] == "message.read"
+        assert read_event["last_read_message_id"] == latest_id
+
+        await comm_a.disconnect()
+        await comm_b.disconnect()
+
+    async def test_mark_read_with_invalid_message_id_returns_error(self):
+        user_a = await _make_user("a@test.com", "a")
+        user_b = await _make_user("b@test.com", "b")
+        room = await _make_room_with_members(user_a, user_b)
+
+        token_a = await _get_access_token(user_a)
+        comm_a = WebsocketCommunicator(_get_application(), f"/ws/chat/{room.id}/?token={token_a}")
+        await comm_a.connect()
+
+        await comm_a.send_json_to({"type": "message.read", "message_id": 999999})
+        response = await comm_a.receive_json_from(timeout=5)
+        assert response["type"] == "error"
+
+        await comm_a.disconnect()
+
     async def test_reject_whitespace_only_message(self):
         user_a = await _make_user("a@test.com", "a")
         user_b = await _make_user("b@test.com", "b")

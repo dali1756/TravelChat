@@ -1,8 +1,10 @@
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.utils import timezone
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from chats.models import ChatRoom, ChatRoomMember, Message
+from chats.services import mark_room_read
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -28,6 +30,8 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
         msg_type = content.get("type")
         if msg_type == "message.send":
             await self._handle_message_send(content)
+        elif msg_type == "message.read":
+            await self._handle_message_read(content)
 
     async def _handle_message_send(self, content):
         user = self.scope["user"]
@@ -65,6 +69,35 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
                 "message": event["message"],
             }
         )
+
+    async def message_read(self, event):
+        await self.send_json(
+            {
+                "type": "message.read",
+                "room_id": event["room_id"],
+                "user_id": event["user_id"],
+                "last_read_message_id": event["last_read_message_id"],
+                "read_at": event["read_at"],
+            }
+        )
+
+    async def _handle_message_read(self, content):
+        user = self.scope.get("user")
+        if not user or user.is_anonymous:
+            await self.send_json({"type": "error", "detail": "未授權。"})
+            return
+        message_id = content.get("message_id")
+        try:
+            await self._mark_read(user, self.room_id, message_id)
+        except PermissionDenied as exc:
+            await self.send_json({"type": "error", "detail": str(exc)})
+        except ValidationError as exc:
+            await self.send_json({"type": "error", "detail": str(exc)})
+
+    @database_sync_to_async
+    def _mark_read(self, user, room_id, message_id):
+        room = ChatRoom.objects.get(id=room_id)
+        return mark_room_read(room=room, user=user, message_id=message_id)
 
     @database_sync_to_async
     def _check_membership(self, user_id, room_id):

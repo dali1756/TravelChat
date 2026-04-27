@@ -33,10 +33,11 @@ class LastMessageSerializer(serializers.ModelSerializer):
 class ChatRoomListSerializer(serializers.ModelSerializer):
     peer = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
+    unread_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = ChatRoom
-        fields = ["id", "room_type", "peer", "last_message", "last_message_at", "created_at"]
+        fields = ["id", "room_type", "peer", "last_message", "last_message_at", "created_at", "unread_count"]
 
     def get_peer(self, obj):
         request_user = self.context["request"].user
@@ -50,6 +51,10 @@ class ChatRoomListSerializer(serializers.ModelSerializer):
         if msg:
             return LastMessageSerializer(msg).data
         return None
+
+
+class MarkRoomReadSerializer(serializers.Serializer):
+    message_id = serializers.IntegerField(required=False, allow_null=True)
 
 
 class MessageSerializer(serializers.ModelSerializer):

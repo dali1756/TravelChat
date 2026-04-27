@@ -40,6 +40,13 @@ class ChatRoomMember(models.Model):
         related_name="chat_memberships",
     )
     joined_at = models.DateTimeField(auto_now_add=True)
+    last_read_message = models.ForeignKey(
+        "Message",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
 
     class Meta:
         unique_together = [("room", "user")]
