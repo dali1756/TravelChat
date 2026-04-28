@@ -70,14 +70,14 @@ backend/
 
 **Goal:** Users can create 1-to-1 chat rooms and send real-time messages to each other.
 
-- [ ] Chat models (Room, Message)
-- [ ] ChatConsumer (WebSocket connect/disconnect/receive)
-- [ ] WebSocket routing (ws/chat/<room_id>/)
-- [ ] REST API to create/get direct chat room
-- [ ] REST API for chat room list (GET /api/chats/rooms/)
-- [ ] REST API for message history (GET /api/chats/rooms/<id>/messages/)
-- [ ] WebSocket JWT authentication
-- [ ] Tests
+- [x] Chat models (Room, Message)
+- [x] ChatConsumer (WebSocket connect/disconnect/receive)
+- [x] WebSocket routing (ws/chat/<room_id>/)
+- [x] REST API to create/get direct chat room
+- [x] REST API for chat room list (GET /api/chats/rooms/)
+- [x] REST API for message history (GET /api/chats/rooms/<id>/messages/)
+- [x] WebSocket JWT authentication
+- [x] Tests
 
 ### Phase 2.5: Chat Enhancements - Group Chat and Read State (chats)
 
@@ -85,8 +85,8 @@ backend/
 
 - [ ] Group chat support (multiple users in one room)
 - [ ] Group member management
-- [ ] Read receipt support
-- [ ] Unread count support
+- [x] Read receipt support
+- [x] Unread count support
 - [ ] Tests
 
 ### Phase 3: AI Chat - Gemini Integration (chats)
