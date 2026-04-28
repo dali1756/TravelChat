@@ -1,0 +1,77 @@
+:root {
+  /* Background scale (deep blue-black, not pure black) */
+  --bg-app: #07111f;
+  --bg-surface: #0d1726;
+  --bg-surface-alt: #132033;
+  --bg-elevated: #18283f;
+
+  /* Borders */
+  --border-subtle: rgba(148, 163, 184, 0.18);
+  --border-strong: rgba(96, 165, 250, 0.34);
+
+  /* Text scale */
+  --text-primary: #e6eef8;
+  --text-secondary: #9fb2c8;
+  --text-muted: #6f839a;
+
+  /* Accent (cyan-leaning electric blue) */
+  --accent-primary: #3ecbff;
+  --accent-secondary: #19b8a6;
+  --accent-hover: #5fd6ff;
+  --accent-pressed: #1ea8d9;
+  --accent: var(--accent-primary);
+
+  /* Status colors */
+  --color-success: #2dd4bf;
+  --color-warning: #fbbf24;
+  --color-danger: #ff6b81;
+  --color-info: #38bdf8;
+
+  /* Font families */
+  --font-family-sans: "Inter", "Noto Sans TC", "IBM Plex Sans TC", system-ui,
+    -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, Consolas, monospace;
+
+  /* Font sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-display: 2rem;
+
+  /* Font weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line heights */
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* Spacing scale (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 6px rgba(3, 8, 20, 0.24);
+  --shadow-md: 0 8px 20px rgba(3, 8, 20, 0.32);
+  --shadow-elevated: 0 18px 48px rgba(3, 8, 20, 0.38);
+  --shadow-glow: 0 0 0 1px rgba(62, 203, 255, 0.16),
+    0 0 24px rgba(62, 203, 255, 0.12);
+}

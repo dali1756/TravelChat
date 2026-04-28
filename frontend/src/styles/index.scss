@@ -1,0 +1,6 @@
+// Single entry point for global styles.
+// Order matters: tokens (CSS variables) -> theme (Bootstrap SCSS overrides) -> global resets.
+
+@import "./tokens.css";
+@import "./_theme.scss";
+@import "./global.css";

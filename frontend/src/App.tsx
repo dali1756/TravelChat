@@ -1,12 +1,11 @@
-import { Container } from 'react-bootstrap'
+import { RouterProvider } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthContext'
+import { router } from './router'
 
-function App() {
+export default function App() {
   return (
-    <Container className="mt-5">
-      <h1>Travel Chat</h1>
-      <p>Welcome to Travel Chat</p>
-    </Container>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   )
 }
-
-export default App
