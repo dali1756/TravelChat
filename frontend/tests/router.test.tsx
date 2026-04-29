@@ -37,15 +37,27 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
   })
 
+  it('redirects unauthenticated user from /rooms to /login', () => {
+    mockAuth(false)
+    renderAt('/rooms')
+    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
+  })
+
+  it('redirects authenticated user from / to /rooms', () => {
+    mockAuth(true)
+    renderAt('/')
+    expect(screen.getByTestId('room-list-page')).toBeInTheDocument()
+  })
+
+  it('renders room list for authenticated user at /rooms', () => {
+    mockAuth(true)
+    renderAt('/rooms')
+    expect(screen.getByTestId('room-list-page')).toBeInTheDocument()
+  })
+
   it('renders styleguide for authenticated user at /_styleguide', () => {
     mockAuth(true)
     renderAt('/_styleguide')
-    expect(screen.getByText(/Travel Chat — Design System/)).toBeInTheDocument()
-  })
-
-  it('redirects authenticated user from / to /_styleguide', () => {
-    mockAuth(true)
-    renderAt('/')
     expect(screen.getByText(/Travel Chat — Design System/)).toBeInTheDocument()
   })
 })

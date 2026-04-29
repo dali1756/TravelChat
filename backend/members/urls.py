@@ -11,6 +11,7 @@ from members.views import (
     RegisterView,
     ResendVerifyEmailView,
     UserProfileView,
+    UserSearchView,
     VerifyEmailView,
 )
 
@@ -28,6 +29,7 @@ auth_urlpatterns = [
 members_urlpatterns = [
     path("me/", UserProfileView.as_view(), name="user_profile"),
     path("me/password/", ChangePasswordView.as_view(), name="change_password"),
+    path("search/", UserSearchView.as_view(), name="user_search"),
 ]
 
 admin_urlpatterns = [

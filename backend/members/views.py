@@ -239,6 +239,22 @@ class PasswordResetRequestView(APIView):
         )
 
 
+class UserSearchView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        query = request.query_params.get("q", "").strip()
+        if not query:
+            return Response([])
+        qs = (
+            User.objects.public()
+            .filter(username__istartswith=query, is_active=True)
+            .exclude(pk=request.user.pk)
+            .values("id", "username")[:20]
+        )
+        return Response(list(qs))
+
+
 class PasswordResetConfirmView(APIView):
     permission_classes = [permissions.AllowAny]
 

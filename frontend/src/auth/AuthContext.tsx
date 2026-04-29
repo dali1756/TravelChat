@@ -20,6 +20,7 @@ export interface RegisterPayload {
   email: string
   username: string
   password: string
+  password_confirm: string
 }
 
 export interface AuthContextValue {

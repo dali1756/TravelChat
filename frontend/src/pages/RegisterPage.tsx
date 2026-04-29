@@ -4,13 +4,14 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ApiError } from '../lib/api'
 
-type FieldErrors = Partial<Record<'email' | 'username' | 'password' | '_root', string[]>>
+type FieldErrors = Partial<Record<'email' | 'username' | 'password' | 'password_confirm' | '_root', string[]>>
 
 export default function RegisterPage() {
   const { register } = useAuth()
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [done, setDone] = useState(false)
@@ -20,7 +21,7 @@ export default function RegisterPage() {
     setSubmitting(true)
     setErrors({})
     try {
-      await register({ email, username, password })
+      await register({ email, username, password, password_confirm: passwordConfirm })
       setDone(true)
     } catch (err) {
       if (err instanceof ApiError && err.body && typeof err.body === 'object') {
@@ -88,7 +89,7 @@ export default function RegisterPage() {
                     </Form.Control.Feedback>
                   ))}
                 </Form.Group>
-                <Form.Group className="mb-4" controlId="reg-password">
+                <Form.Group className="mb-3" controlId="reg-password">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
                     type="password"
@@ -99,6 +100,22 @@ export default function RegisterPage() {
                     required
                   />
                   {errors.password?.map((msg) => (
+                    <Form.Control.Feedback key={msg} type="invalid">
+                      {msg}
+                    </Form.Control.Feedback>
+                  ))}
+                </Form.Group>
+                <Form.Group className="mb-4" controlId="reg-password-confirm">
+                  <Form.Label>Confirm Password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    isInvalid={!!errors.password_confirm}
+                    autoComplete="new-password"
+                    required
+                  />
+                  {errors.password_confirm?.map((msg) => (
                     <Form.Control.Feedback key={msg} type="invalid">
                       {msg}
                     </Form.Control.Feedback>

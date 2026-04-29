@@ -4,6 +4,8 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import Styleguide from './pages/_Styleguide'
+import RoomListPage from './pages/RoomListPage'
+import ChatRoomPage from './pages/ChatRoomPage'
 
 export function AppRoutes() {
   return (
@@ -17,7 +19,9 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<Navigate to="/_styleguide" replace />} />
+        <Route index element={<Navigate to="/rooms" replace />} />
+        <Route path="/rooms" element={<RoomListPage />} />
+        <Route path="/rooms/:id" element={<ChatRoomPage />} />
         <Route path="/_styleguide" element={<Styleguide />} />
       </Route>
     </Routes>
@@ -35,7 +39,9 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <Navigate to="/_styleguide" replace /> },
+      { index: true, element: <Navigate to="/rooms" replace /> },
+      { path: '/rooms', element: <RoomListPage /> },
+      { path: '/rooms/:id', element: <ChatRoomPage /> },
       { path: '/_styleguide', element: <Styleguide /> },
     ],
   },

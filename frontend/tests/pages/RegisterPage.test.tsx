@@ -30,12 +30,13 @@ describe('RegisterPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('renders email, username, password fields', () => {
+  it('renders email, username, password, password_confirm fields', () => {
     mockAuth(vi.fn())
     renderPage()
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+    expect(screen.getByLabelText('Password')).toBeInTheDocument()
+    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
   })
 
   it('shows verification prompt on success', async () => {
@@ -44,7 +45,8 @@ describe('RegisterPage', () => {
     renderPage()
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'a@t.com' } })
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'alice' } })
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'Aa1!xyzz' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Aa1!xyzz' } })
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'Aa1!xyzz' } })
 
     await act(async () => {
       screen.getByRole('button', { name: /register/i }).click()
@@ -56,6 +58,7 @@ describe('RegisterPage', () => {
       email: 'a@t.com',
       username: 'alice',
       password: 'Aa1!xyzz',
+      password_confirm: 'Aa1!xyzz',
     })
     expect(screen.getByText(/請至信箱完成驗證/)).toBeInTheDocument()
   })
@@ -71,7 +74,8 @@ describe('RegisterPage', () => {
     renderPage()
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'a@t.com' } })
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'alice' } })
-    fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'x' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'x' } })
+    fireEvent.change(screen.getByLabelText(/confirm password/i), { target: { value: 'x' } })
 
     await act(async () => {
       screen.getByRole('button', { name: /register/i }).click()
