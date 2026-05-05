@@ -5,6 +5,7 @@ from django.db import models
 class ChatRoom(models.Model):
     class RoomType(models.TextChoices):
         DIRECT = "direct", "Direct"
+        GROUP = "group", "Group"
 
     room_type = models.CharField(max_length=10, choices=RoomType.choices, default=RoomType.DIRECT)
     name = models.CharField(max_length=255, null=True, blank=True)

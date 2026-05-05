@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from chats.models import ChatRoom, Message
+from chats.models import ChatRoom, ChatRoomMember, Message
 from members.models import User
 
 
@@ -37,7 +37,7 @@ class ChatRoomListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatRoom
-        fields = ["id", "room_type", "peer", "last_message", "last_message_at", "created_at", "unread_count"]
+        fields = ["id", "room_type", "name", "peer", "last_message", "last_message_at", "created_at", "unread_count"]
 
     def get_peer(self, obj):
         request_user = self.context["request"].user
@@ -64,3 +64,40 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ["id", "sender_id", "sender_username", "message_type", "content", "created_at"]
+
+
+class GroupRoomCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+    member_ids = serializers.ListField(child=serializers.IntegerField(), required=False, default=list)
+
+    def validate_member_ids(self, value):
+        if not value:
+            return value
+        existing_ids = set(User.objects.public().filter(id__in=value).values_list("id", flat=True))
+        missing = set(value) - existing_ids
+        if missing:
+            raise serializers.ValidationError(f"找不到使用者：{sorted(missing)}")
+        return value
+
+
+class RoomMemberUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
+
+
+class RoomMemberSerializer(serializers.ModelSerializer):
+    user = RoomMemberUserSerializer(read_only=True)
+
+    class Meta:
+        model = ChatRoomMember
+        fields = ["id", "user", "joined_at"]
+
+
+class RoomMemberAddSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+
+    def validate_user_id(self, value):
+        if not User.objects.public().filter(id=value).exists():
+            raise serializers.ValidationError("找不到該使用者。")
+        return value

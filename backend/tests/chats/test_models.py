@@ -9,6 +9,19 @@ User = get_user_model()
 
 @pytest.mark.django_db
 class TestChatRoomModel:
+    def test_group_room_type_exists(self):
+        assert ChatRoom.RoomType.GROUP == "group"
+
+    def test_group_room_can_be_created(self):
+        user = User.objects.create_user(email="a@test.com", username="a", password="Aa1!xy", is_active=True)
+        room = ChatRoom.objects.create(
+            room_type=ChatRoom.RoomType.GROUP,
+            name="Travel Crew",
+            created_by=user,
+        )
+        assert room.room_type == "group"
+        assert room.name == "Travel Crew"
+
     def test_make_direct_key_sorted(self):
         assert ChatRoom.make_direct_key(5, 3) == "3:5"
         assert ChatRoom.make_direct_key(1, 10) == "1:10"
