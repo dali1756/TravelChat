@@ -9,8 +9,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from chats.models import ChatRoom, ChatRoomMember, Message
+from chats.models import AIConversation, AIMessage, ChatRoom, ChatRoomMember, Message
 from chats.serializers import (
+    AIConversationSerializer,
+    AIMessageSerializer,
     ChatRoomListSerializer,
     DirectRoomCreateSerializer,
     GroupRoomCreateSerializer,
@@ -205,3 +207,32 @@ class MarkRoomReadView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class AIConversationListCreateView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AIConversationSerializer
+
+    def get_queryset(self):
+        return AIConversation.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class AIConversationMessagesView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AIMessageSerializer
+
+    def get_queryset(self):
+        conversation_id = self.kwargs["conversation_id"]
+        return AIMessage.objects.filter(
+            conversation_id=conversation_id,
+            conversation__owner=self.request.user,
+        )
+
+    def list(self, request, *args, **kwargs):
+        conversation_id = self.kwargs["conversation_id"]
+        if not AIConversation.objects.filter(id=conversation_id, owner=request.user).exists():
+            return Response({"detail": "找不到此對話。"}, status=status.HTTP_404_NOT_FOUND)
+        return super().list(request, *args, **kwargs)

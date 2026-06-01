@@ -78,3 +78,40 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message {self.pk} by {self.sender} in {self.room}"
+
+
+class AIConversation(models.Model):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="ai_conversations",
+    )
+    title = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return self.title or f"AIConversation {self.pk} (owner={self.owner_id})"
+
+
+class AIMessage(models.Model):
+    class Role(models.TextChoices):
+        USER = "user", "User"
+        MODEL = "model", "Model"
+
+    conversation = models.ForeignKey(AIConversation, on_delete=models.CASCADE, related_name="messages")
+    role = models.CharField(max_length=10, choices=Role.choices)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["conversation", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"AIMessage {self.pk} ({self.role}) in conv {self.conversation_id}"

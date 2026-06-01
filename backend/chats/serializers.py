@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from chats.models import ChatRoom, ChatRoomMember, Message
+from chats.models import AIConversation, AIMessage, ChatRoom, ChatRoomMember, Message
 from members.models import User
 
 
@@ -101,3 +101,16 @@ class RoomMemberAddSerializer(serializers.Serializer):
         if not User.objects.public().filter(id=value).exists():
             raise serializers.ValidationError("找不到該使用者。")
         return value
+
+
+class AIConversationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AIConversation
+        fields = ["id", "title", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class AIMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AIMessage
+        fields = ["id", "role", "content", "created_at"]

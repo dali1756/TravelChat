@@ -1,10 +1,23 @@
+from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied, ValidationError
 
-from chats.models import ChatRoom, ChatRoomMember, Message
+from chats.ai import get_provider
+from chats.ai.prompts import TRAVEL_PLANNING_SYSTEM_PROMPT
+from chats.models import AIConversation, AIMessage, ChatRoom, ChatRoomMember, Message
 from chats.services import mark_room_read
+
+
+def _next_chunk(generator):
+    """
+    在 thread 中步進同步產生器，回傳(chunk, done)。
+    """
+    try:
+        return next(generator), False
+    except StopIteration:
+        return None, True
 
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -120,3 +133,70 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
             "content": message.content,
             "created_at": message.created_at.isoformat(),
         }
+
+
+class AIConsumer(AsyncJsonWebsocketConsumer):
+    async def connect(self):
+        self.conversation_id = self.scope["url_route"]["kwargs"]["conversation_id"]
+        user = self.scope.get("user")
+        if not user or user.is_anonymous:
+            await self.close()
+            return
+        if not await self._is_owner(user.id, self.conversation_id):
+            await self.close()
+            return
+        await self.accept()
+
+    async def receive_json(self, content, **kwargs):
+        if content.get("type") != "ai.message":
+            return
+        user = self.scope.get("user")
+        if not user or user.is_anonymous:
+            await self.send_json({"type": "error", "detail": "未授權。"})
+            return
+        if not await self._is_owner(user.id, self.conversation_id):
+            await self.send_json({"type": "error", "detail": "您不是此對話的擁有者。"})
+            return
+        text = (content.get("content") or "").strip()
+        if not text:
+            await self.send_json({"type": "error", "detail": "訊息內容不能為空。"})
+            return
+        await self._persist_message(AIMessage.Role.USER, text)
+        history = await self._load_history()
+        provider = get_provider()
+        parts = []
+        try:
+            generator = provider.stream(history, TRAVEL_PLANNING_SYSTEM_PROMPT)
+            while True:
+                chunk, done = await sync_to_async(_next_chunk)(generator)
+                if done:
+                    break
+                parts.append(chunk)
+                await self.send_json({"type": "ai.chunk", "delta": chunk})
+        except Exception:
+            await self.send_json({"type": "error", "detail": "AI 服務暫時無法回應，請稍後再試。"})
+            return
+        full = "".join(parts)
+        message_id = await self._persist_message(AIMessage.Role.MODEL, full)
+        await self.send_json({"type": "ai.done", "message_id": message_id, "content": full})
+
+    @database_sync_to_async
+    def _is_owner(self, user_id, conversation_id):
+        return AIConversation.objects.filter(id=conversation_id, owner_id=user_id).exists()
+
+    @database_sync_to_async
+    def _persist_message(self, role, content):
+        message = AIMessage.objects.create(
+            conversation_id=self.conversation_id,
+            role=role,
+            content=content,
+        )
+        AIConversation.objects.filter(id=self.conversation_id).update(updated_at=timezone.now())
+        return message.id
+
+    @database_sync_to_async
+    def _load_history(self):
+        return [
+            {"role": m.role, "content": m.content}
+            for m in AIMessage.objects.filter(conversation_id=self.conversation_id)
+        ]

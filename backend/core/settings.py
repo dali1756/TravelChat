@@ -24,6 +24,10 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
 
+# GEMINI_API_KEY 未設定時走 stub provider，設定後切換
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or None
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+
 ASGI_APPLICATION = "core.asgi.application"
 
 CHANNEL_LAYERS = {
