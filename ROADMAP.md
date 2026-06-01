@@ -83,23 +83,23 @@ backend/
 
 **Goal:** Extend direct chat foundation to support group conversations and basic read-state features.
 
-- [ ] Group chat support (multiple users in one room)
-- [ ] Group member management
+- [x] Group chat support (multiple users in one room)
+- [x] Group member management
 - [x] Read receipt support
 - [x] Unread count support
-- [ ] Tests
+- [x] Tests
 
 ### Phase 3: AI Chat - Gemini Integration (chats)
 
 **Goal:** Users can chat with AI to discuss travel plans, with streaming responses.
 
-- [ ] Install google-genai package
-- [ ] AIConsumer (WebSocket connect/disconnect/receive)
-- [ ] WebSocket routing (ws/ai/<conversation_id>/)
-- [ ] Gemini Streaming API integration (typewriter effect)
-- [ ] AI conversation history storage
-- [ ] System prompt for travel planning context
-- [ ] Tests
+- [x] Install google-genai package
+- [x] AIConsumer (WebSocket connect/disconnect/receive)
+- [x] WebSocket routing (ws/ai/<conversation_id>/)
+- [x] Gemini Streaming API integration (typewriter effect) - 後端串流完成，前端打字機渲染留待 Phase 6
+- [x] AI conversation history storage
+- [x] System prompt for travel planning context
+- [x] Tests
 
 ### Phase 4: Trip Planning (trips)
 
