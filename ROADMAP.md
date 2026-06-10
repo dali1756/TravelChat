@@ -105,12 +105,12 @@ backend/
 
 **Goal:** Users can create and manage trip itineraries.
 
-- [ ] Create trips app
-- [ ] Trip models (Trip, Day, Activity, Attraction)
-- [ ] Trip CRUD API (POST/GET/PUT/DELETE /api/trips/)
-- [ ] Day schedule management
-- [ ] Share trip with other users
-- [ ] Tests
+- [x] Create trips app
+- [x] Trip models (Trip, Day, Activity, Attraction)
+- [x] Trip CRUD API (POST/GET/PUT/DELETE /api/trips/)
+- [x] Day schedule management
+- [x] Share trip with other users
+- [x] Tests
 
 ### Phase 5: AI + Trip Integration
 

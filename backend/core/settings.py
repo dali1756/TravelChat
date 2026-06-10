@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "members",
     "chats",
+    "trips",
 ]
 
 MIDDLEWARE = [
