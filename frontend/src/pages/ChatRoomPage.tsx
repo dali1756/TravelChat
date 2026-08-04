@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
-import { ApiError, apiFetch } from '../lib/api'
+import { ApiError } from '../lib/api'
 import { fetchMessages, markRoomRead } from '../lib/chatApi'
 import type { Message } from '../lib/types'
 import { auth } from '../lib/auth'
@@ -27,17 +27,14 @@ export default function ChatRoomPage() {
   const wsRef = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    fetchMessages(roomId)
-      .then((msgs) => {
+    fetchMessages(roomId).then((msgs) => {
         setMessages(msgs)
         markRoomRead(roomId).catch(() => {})
-      })
-      .catch((err) => {
+      }).catch((err) => {
         if (err instanceof ApiError && (err.status === 403 || err.status === 404)) {
           setAccessError(true)
         }
-      })
-      .finally(() => setLoading(false))
+      }).finally(() => setLoading(false))
   }, [roomId])
 
   useEffect(() => {
@@ -86,9 +83,7 @@ export default function ChatRoomPage() {
     return (
       <Container className="py-4">
         <Alert variant="danger">無法存取此聊天室。</Alert>
-        <Button variant="link" onClick={() => navigate('/rooms')}>
-          返回列表
-        </Button>
+        <Button variant="link" onClick={() => navigate('/rooms')}>返回列表</Button>
       </Container>
     )
   }
@@ -96,15 +91,11 @@ export default function ChatRoomPage() {
   return (
     <Container className="py-3 d-flex flex-column" style={{ height: 'calc(100vh - 60px)' }}>
       <div className="mb-2">
-        <Button variant="link" className="p-0" onClick={() => navigate('/rooms')}>
-          ← 返回列表
-        </Button>
+        <Button variant="link" className="p-0" onClick={() => navigate('/rooms')}>← 返回列表</Button>
       </div>
 
       {wsDisconnected && (
-        <Alert variant="warning" className="py-1">
-          連線已中斷，請重新整理。
-        </Alert>
+        <Alert variant="warning" className="py-1">連線已中斷，請重新整理。</Alert>
       )}
 
       <div className="flex-grow-1 overflow-auto mb-3">

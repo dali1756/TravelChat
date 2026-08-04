@@ -6,6 +6,8 @@ import RegisterPage from './pages/RegisterPage'
 import Styleguide from './pages/_Styleguide'
 import RoomListPage from './pages/RoomListPage'
 import ChatRoomPage from './pages/ChatRoomPage'
+import TripListPage from './pages/TripListPage'
+import TripDetailPage from './pages/TripDetailPage'
 
 export function AppRoutes() {
   return (
@@ -22,6 +24,8 @@ export function AppRoutes() {
         <Route index element={<Navigate to="/rooms" replace />} />
         <Route path="/rooms" element={<RoomListPage />} />
         <Route path="/rooms/:id" element={<ChatRoomPage />} />
+        <Route path="/trips" element={<TripListPage />} />
+        <Route path="/trips/:id" element={<TripDetailPage />} />
         <Route path="/_styleguide" element={<Styleguide />} />
       </Route>
     </Routes>
@@ -42,6 +46,8 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/rooms" replace /> },
       { path: '/rooms', element: <RoomListPage /> },
       { path: '/rooms/:id', element: <ChatRoomPage /> },
+      { path: '/trips', element: <TripListPage /> },
+      { path: '/trips/:id', element: <TripDetailPage /> },
       { path: '/_styleguide', element: <Styleguide /> },
     ],
   },

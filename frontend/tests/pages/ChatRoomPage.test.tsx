@@ -6,7 +6,6 @@ import * as chatApi from '../../src/lib/chatApi'
 import * as AuthModule from '../../src/auth/AuthContext'
 import ChatRoomPage from '../../src/pages/ChatRoomPage'
 
-// jsdom does not implement scrollIntoView
 HTMLElement.prototype.scrollIntoView = vi.fn()
 
 class MockWebSocket {
@@ -19,7 +18,9 @@ class MockWebSocket {
     MockWebSocket.instances.push(this)
   }
 
-  send(_data: string) {}
+  send(_data: string) {
+    void _data
+  }
   close() {}
 }
 
@@ -45,8 +46,6 @@ function renderChatRoom(roomId = 1) {
 }
 
 async function waitForWs(): Promise<MockWebSocket> {
-  // After loading finishes, the WS connection effect fires.
-  // Wait until an instance appears.
   await waitFor(() => {
     expect(MockWebSocket.instances.length).toBeGreaterThan(0)
   })
@@ -78,7 +77,6 @@ describe('ChatRoomPage — mark-read behaviour', () => {
 
     renderChatRoom(1)
 
-    // Wait for mount mark-read AND WS to be created
     await waitFor(() => expect(markRead).toHaveBeenCalledTimes(1))
     const ws = await waitForWs()
 
@@ -127,7 +125,6 @@ describe('ChatRoomPage — mark-read behaviour', () => {
       })
     })
 
-    // Give enough time for any spurious calls
     await new Promise((r) => setTimeout(r, 50))
     expect(markRead).toHaveBeenCalledTimes(1)
   })

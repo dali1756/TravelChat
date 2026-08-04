@@ -126,12 +126,12 @@ backend/
 
 **Goal:** Build the user interface.
 
-- [ ] Choose framework (React / Vue / Next.js)
-- [ ] Project setup in frontend/
-- [ ] Auth pages (register, login)
-- [ ] Chat UI (message list, input, room list)
-- [ ] AI chat UI (streaming response display)
-- [ ] Trip planner UI (calendar view, drag & drop)
+- [x] Choose framework (React / Vue / Next.js) - React 19 + TypeScript + Vite
+- [x] Project setup in frontend/ - Vite + react-bootstrap + design tokens (STYLE_SPEC.md)
+- [x] Auth pages (register, login) - AuthContext / ProtectedRoute / apiFetch 401 auto-refresh
+- [x] Chat UI (message list, input, room list) - 一對一 + 群組 + 未讀 badge
+- [ ] AI chat UI (streaming response display) - 待後續 slice
+- [x] Trip planner UI - 行程列表/明細、天與活動 CRUD 與排序、景點關聯、成員分享；calendar view 與 drag & drop 不納入（需新依賴，留待後續）
 - [ ] Responsive design (mobile support)
 
 ---

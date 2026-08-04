@@ -40,6 +40,18 @@ describe('AppShell', () => {
     expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument()
   })
 
+  it('renders a nav link to the trips section', () => {
+    mockAuth({})
+    renderShell()
+    expect(screen.getByRole('link', { name: '行程' })).toHaveAttribute('href', '/trips')
+  })
+
+  it('renders a nav link to the chat rooms section', () => {
+    mockAuth({})
+    renderShell()
+    expect(screen.getByRole('link', { name: '對話' })).toHaveAttribute('href', '/rooms')
+  })
+
   it('renders the matched child via <Outlet />', () => {
     mockAuth({})
     renderShell()

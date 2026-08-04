@@ -13,23 +13,18 @@ export default function AppShell() {
 
   return (
     <>
-      <Navbar
-        bg="dark"
-        data-bs-theme="dark"
-        className="border-bottom"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
+      <Navbar bg="dark" data-bs-theme="dark" className="border-bottom" style={{ borderColor: 'var(--border-subtle)' }}>
         <Container>
-          <Navbar.Brand as={Link} to="/" className="fw-semibold">
-            Travel Chat
-          </Navbar.Brand>
+          <Navbar.Brand as={Link} to="/" className="fw-semibold">Travel Chat</Navbar.Brand>
+          <Nav className="me-auto align-items-center gap-2">
+            <Nav.Link as={Link} to="/rooms">對話</Nav.Link>
+            <Nav.Link as={Link} to="/trips">行程</Nav.Link>
+          </Nav>
           <Nav className="ms-auto align-items-center gap-3">
             {currentUser && (
               <span className="text-secondary">{currentUser.username}</span>
             )}
-            <Button size="sm" variant="outline-secondary" onClick={handleLogout}>
-              Logout
-            </Button>
+            <Button size="sm" variant="outline-secondary" onClick={handleLogout}>Logout</Button>
           </Nav>
         </Container>
       </Navbar>
