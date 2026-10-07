@@ -14,30 +14,13 @@ Travel Chat 讓使用者**一邊跟 AI 對談規劃行程，一邊跟朋友討�
 2. **AI 旅遊顧問** — 與 Google Gemini 對話並以串流回覆，帶旅遊規劃的 system prompt。
 3. **行程規劃** — 建立行程 -> 每日排程（day）-> 當日活動（activity）-> 可關聯景點（attraction），並可分享給其他使用者，以 owner / editor / viewer 三種角色控制權限。
 
-### 目前完成度
-
-| 範圍 | 狀態 |
-|---|---|
-| 後端：會員系統（註冊、登入、JWT、Email 驗證、密碼重設、軟刪除） | 完成 |
-| 後端：即時聊天（一對一、群組、已讀／未讀） | 完成 |
-| 後端：AI 聊天（Gemini 串流、對話歷史） | 完成 |
-| 後端：行程規劃與分享（trips / days / activities / attractions / members） | 完成 |
-| 前端：登入註冊、聊天 UI、行程規劃 UI | 完成 |
-| 前端：AI 聊天 UI（串流打字機渲染） | 未完成 |
-| AI 產生的行程「一鍵存入行程表」整合 | 未完成 |
-| RWD 設計 | 未完成 |
-
-詳細的階段規劃見 [ROADMAP.md](ROADMAP.md)。
-
----
-
 ## 系統架構
 
 ```
 瀏覽器（React SPA，:5173）
     │
     ├─ HTTP / REST（:8000）
-    │     ├─ /api/auth/      註冊、登入、JWT、Email 驗證、密碼重設
+    │     ├─ /api/auth/       註冊、登入、JWT、Email 驗證、密碼重設
     │     ├─ /api/members/    個人資料、使用者搜尋
     │     ├─ /api/admin/      管理功能（staff only）
     │     ├─ /api/chats/      聊天室、訊息歷史、AI 對話歷史
@@ -47,7 +30,7 @@ Travel Chat 讓使用者**一邊跟 AI 對談規劃行程，一邊跟朋友討�
           ├─ ws/chat/<room_id>/         好友／群組聊天
           └─ ws/ai/<conversation_id>/   AI 串流對話
                                             │
-                        Redis（:6379）──────┘  Channel Layer（跨連線廣播）
+                        Redis（:6379） ──────┘  Channel Layer（跨連線廣播）
                         PostgreSQL（:5432）    資料持久化
 ```
 
@@ -106,14 +89,14 @@ django_channel/
 
 ## Setup
 
-這條路線**不需要**在本機安裝 Python、Node、PostgreSQL、Redis，只要有 Docker 就好。
+**不需要**在本機安裝 Python、Node、PostgreSQL、Redis，只要有 Docker 就好。
 
-### 你需要先安裝
+### 需要先安裝
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)（含 Docker Compose）
 - Git
 
-### 步驟 1：取得程式碼
+### 步驟 1：clone 程式碼
 
 ```bash
 git clone https://github.com/dali1756/TravelChat.git
@@ -359,71 +342,6 @@ npm run test:watch                # Watch 模式（改檔案自動重跑）
 npm run lint                      # ESLint
 npm run build                     # 型別檢查（tsc）+ production build
 ```
-
----
-
-## API 總覽
-
-所有需要認證的端點皆使用 `Authorization: Bearer <access_token>`。前端的 `apiFetch` 已內建 401 自動 refresh。
-
-### 認證（`/api/auth/`）
-
-| Method | Path | 說明 |
-|---|---|---|
-| POST | `/register/` | 註冊（建立 `is_active=False` 的帳號並寄驗證信） |
-| POST | `/login/` | 登入（帶 **email** + password；需 `is_active=True`）；預設速率 5/min |
-| POST | `/logout/` | 登出（作廢 refresh token） |
-| POST | `/token/refresh/` | 換發 access token（rotation + blacklist） |
-| GET | `/verify-email/?uid=&token=` | Email 驗證，通過後啟用帳號並回傳 JWT |
-| POST | `/verify-email/resend/` | 重寄驗證信（需 email + password） |
-| POST | `/password-reset/request/` | 忘記密碼請求（無論 email 是否存在皆回 200，避免帳號枚舉） |
-| POST | `/password-reset/confirm/` | 以 uid + token 重設密碼，成功後作廢所有 session |
-
-### 使用者自身（`/api/members/`）
-
-| Method | Path | 說明 |
-|---|---|---|
-| GET / PUT / PATCH | `/me/` | 讀取／更新個人資料（email 唯讀） |
-| PUT | `/me/password/` | 修改密碼（需舊密碼；成功後作廢所有 session） |
-| GET | `/search/?q=` | 搜尋使用者（用於發起聊天、分享行程）。以 **username 前綴**比對，只回傳 `is_active=True` 的帳號，最多 20 筆，並排除自己、superuser 與 username 為 `admin` 的帳號 |
-
-### 聊天（`/api/chats/`）
-
-| Method | Path | 說明 |
-|---|---|---|
-| GET | `/rooms/` | 我的聊天室列表（含最後訊息與未讀數） |
-| POST | `/rooms/direct/` | 建立／取得一對一聊天室 |
-| POST | `/rooms/group/` | 建立群組聊天室 |
-| GET | `/rooms/<id>/messages/` | 訊息歷史 |
-| POST | `/rooms/<id>/read/` | 標記已讀 |
-| GET / POST | `/rooms/<id>/members/` | 群組成員列表／新增 |
-| DELETE | `/rooms/<id>/members/<user_id>/` | 移除群組成員 |
-| GET / POST | `/ai/conversations/` | AI 對話列表／建立 |
-| GET | `/ai/conversations/<id>/messages/` | AI 對話歷史 |
-
-### 行程（`/api/trips/`）
-
-| Method | Path | 說明 |
-|---|---|---|
-| GET / POST | `/` | 我參與的行程列表／建立行程 |
-| GET / PUT / PATCH / DELETE | `/<id>/` | 行程明細（含巢狀 days 與 activities）／修改（owner、editor）／刪除（僅 owner） |
-| GET / POST | `/<id>/days/` | 每日排程列表／新增（日期需落在行程起訖範圍且不重複） |
-| GET / PUT / PATCH / DELETE | `/<id>/days/<day_id>/` | 單日讀取／修改／刪除 |
-| GET / POST | `/<id>/days/<day_id>/activities/` | 當日活動列表／新增 |
-| GET / PUT / PATCH / DELETE | `/<id>/days/<day_id>/activities/<activity_id>/` | 活動讀取／修改（含以 `order` 調序）／刪除 |
-| GET / POST | `/attractions/` | 景點列表／建立（任何登入使用者皆可建立） |
-| GET | `/attractions/<id>/` | 景點明細 |
-| GET / POST | `/<id>/members/` | 行程成員列表／分享（僅 owner，指派 editor 或 viewer） |
-| DELETE | `/<id>/members/<user_id>/` | 移除成員（owner）／自行退出行程（成員本人） |
-
-權限規則：非參與者一律回 **404**（不洩漏行程是否存在）；參與者但角色不足則回 **403**。
-
-### WebSocket
-
-| Path | 說明 |
-|---|---|
-| `ws/chat/<room_id>/` | 好友／群組聊天，需在連線時帶 JWT |
-| `ws/ai/<conversation_id>/` | AI 串流對話 |
 
 ---
 
